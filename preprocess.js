@@ -1,9 +1,9 @@
 import mammoth from "mammoth";
 import fs from "node:fs/promises"
 import path from "node:path";
-import { readExcel } from "./utils.js"
+import { readCSV, readExcel } from "./utils.js"
 
-const SYSTEM_PROMPT = `Extract the necessary information from the given text, which contains a patient's oral cancer data. Use the provided mappings to ensure accurate and efficient extraction.`
+const SYSTEM_PROMPT = `Extract the essential details from the provided text containing a patient’s oral cancer data. Format the output as a semi-colon separated list of key-value pairs, strictly adhering to the following structure:\nfeature1:value1;feature2:value2;… \nExample: age:40;sex:1;subsite:2;Pathology:3;… \nEnsure precise and efficient extraction by applying the given mappings accurately.`
 
 function convertRowToCsv(row) {
     delete row["ID"]
@@ -19,8 +19,8 @@ function convertRowToCsv(row) {
 async function processDocuments(format) {
     try {
         const BASE_PATH = "dataset/word_docs"
-        const dataset = await readExcel("dataset/oral\ cancer\ data.xlsx")
-        const mappings = await fs.readFile("dataset/mappings.txt", 'utf-8')
+        const dataset = await readCSV("dataset/oral cancer data.csv")
+        const mappings = (await fs.readFile("dataset/mappings.txt", 'utf-8')).replaceAll(/(\n){3,}/g, "\n").replaceAll(/(\t)+/g, " ").replaceAll(/(\r\n)+/g, "\n")
         const data = []
 
         const docs = (await fs.readdir(BASE_PATH)).filter(file => file.endsWith(".docx"))
@@ -29,7 +29,8 @@ async function processDocuments(format) {
         for (let doc of docs) {
             try {
                 const id = parseInt(doc.substring(0, doc.indexOf(".")), 10)
-                const row = dataset.find((row) => row["ID"] === id) || {}
+                const row = dataset.find((record) => parseInt(record["ID"], 10) === id) || {}
+                
                 const row_csv = convertRowToCsv(row)
 
                 const filepath = path.resolve(BASE_PATH, doc)
@@ -37,7 +38,7 @@ async function processDocuments(format) {
                     path: filepath
                 })).value
     
-                const user_prompt = rawText
+                const user_prompt = rawText.replaceAll(/(\n){3,}/g, "\n").replaceAll(/(\t)+/g, " ").replaceAll(/(\r\n)+/g, "\n")
                 const system_prompt = `${SYSTEM_PROMPT}\nMappings: ${mappings}`
                 const prompt = system_prompt + "\n" + user_prompt
 
