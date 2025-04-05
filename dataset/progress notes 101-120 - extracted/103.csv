@@ -1,0 +1,6 @@
+﻿Boneinv,DOS,ENS,LVI,Margins,NodalrecurrenceLevel,PNI,Pathology,Surgery,adjRx,age,clinicalT8thed,dateofLR,dateofNodalrecurrence,lastFU,lateralitysurgery,nodal8thed,nodallevel,pN8thed,pt8thed,sex,skininv,stateFU,subsite
+0,10/24/2013,0,0,0,,1,1,2,1,54,4,,,11/20/2014,1,0,,0,4,1,0,1,2
+0,12/21/2013,0,0,0,,1,3,2,0,40,4,,,3/6/2014,2,0,,0,3,1,0,1,2
+0,1/6/2014,0,0,0,,0,1,2,0,65,3,,,12/28/2016,1,0,,0,3,1,0,1,1
+0,12/11/2013,1,0,0,,1,4,3,0,,4,,,8/11/2014,2,3,,6,4,1,0,1,4
+0,11/21/2013,0,1,0,,1,1,2,1,60,4,,,6/7/2014,1,3,,3,4,1,0,3,2

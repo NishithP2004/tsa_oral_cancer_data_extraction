@@ -16,11 +16,11 @@
 16. lateralitysurgery: {ipsilateral: 1, bilateral: 2}
 17. DOS
 18. adjRx: {no: 0, yes: 1}
-19. date of LR
+19. dateofLR
 20. Nodalrecurrencelevel: {ipsilateral: 1, contralateral: 2}
 21. Nodallevel
-22. date of Nodalrecurrence
-23. last FU
+22. dateofNodalrecurrence
+23. lastFU
 24. stateFU: {NED: 1, AWD: 2, DWD': 3, Dead due to other causes: 4}
 
 

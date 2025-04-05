@@ -32,7 +32,7 @@ async function readCSV(filepath) {
         console.log(filepath)
         const lines = (await fs.readFile(filepath, "utf-8")).split("\n")
         const headers = lines.shift().split(",")
-        console.log(headers)
+        // console.log(headers)
 
         const data = lines.reduce((acc, line) => {
             const features = line.split(",")
