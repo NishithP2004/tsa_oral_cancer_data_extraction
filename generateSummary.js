@@ -162,13 +162,16 @@ const featureNameMap = {
 function reverseMap(features) {
     let str = ""
 
-    for(let feature of Object.keys(features))
-        str += `${featureNameMap[feature]}: ${(!featureValueMap[feature])? features[feature]: featureValueMap[feature][features[feature]]} `
+    for(let feature of Object.keys(features)) {
+        if(features[feature].trim() !== "") {
+            str += `${featureNameMap[feature]}: ${(!featureValueMap[feature])? features[feature]: featureValueMap[feature][features[feature]]} `
+        }
+    }
 
     return str
 }
 
-async function generateSummary(id) {
+async function generateSummary(id, attempt=1) {
     try {
         const specific_cols = [dataset.find((record) => record["ID"] == id)].map(e => {
             const obj = {}
@@ -189,10 +192,12 @@ async function generateSummary(id) {
         }))
 
         const summary = JSON.parse(response)["summary"]
-        if(!summary) 
-            return generateSummary(id)
-        else 
-            return summary
+        if(!summary && attempt < 3) {
+            console.warn(`Attempt ${attempt} for ID ${id} produced an empty summary. Retrying ...`)
+            return await generateSummary(id, attempt + 1)
+        }
+
+        return summary || ""
     } catch(err) {
         console.error("Error generating summary:", err.message)
     }
@@ -200,13 +205,12 @@ async function generateSummary(id) {
 
 for(let doc of docs) {
     const id = parseInt(doc.substring(0, doc.indexOf(".")), 10)
+    console.clear()
+    console.log(`Generating Summary for ${doc} ...`)
     const summary = await generateSummary(id)
 
-    console.clear()
-    console.log(`Generating Summary ${id} / ${docs.length}`)
-
     if (summary) {
-        await fs.writeFile(`dataset/summary/${id}.txt`, summary);
+        await fs.writeFile(`output/summary/${id}.txt`, summary);
     } else {
         console.error(`[!] Summary for ID ${id} is empty. File not written.`);
     }
