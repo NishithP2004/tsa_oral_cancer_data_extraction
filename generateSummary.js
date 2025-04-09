@@ -3,7 +3,8 @@ import fs from "node:fs/promises"
 import { generate_response } from "./services/ollama.js"
 
 const BASE_PATH = "dataset/word_docs"
-const dataset = await readCSV("dataset/oral cancer data.csv")
+const dataset = await readCSV("dataset/evaluation_dataset.csv")
+// const dataset = await readCSV("dataset/oral cancer data.csv")
 
 const docs = (await fs.readdir(BASE_PATH)).filter(file => file.endsWith(".docx"))
 console.log(`[+] Found ${docs.length} documents`)
@@ -171,16 +172,29 @@ function reverseMap(features) {
     return str
 }
 
-async function generateSummary(id, attempt=1) {
+async function generateSummary(options, attempt=1) {
     try {
-        const specific_cols = [dataset.find((record) => record["ID"] == id)].map(e => {
-            const obj = {}
-            for(let feature of cols) {
-                obj[feature] = e[feature]
-            }
+        let specific_cols = {}
 
-            return obj
-        })[0]
+        if(options.id) {
+            specific_cols = [dataset.find((record) => record["ID"] == id)].map(e => {
+                const obj = {}
+                for(let feature of cols) {
+                    obj[feature] = e[feature]
+                }
+    
+                return obj
+            })[0]
+        } else if(options.row) {
+            specific_cols = [options.row].map(e => {
+                const obj = {}
+                for(let feature of cols) {
+                    obj[feature] = e[feature]
+                }
+    
+                return obj
+            })[0]
+        }
 
         const raw_summary = reverseMap(specific_cols)
         const response = (await generate_response({
@@ -203,14 +217,29 @@ async function generateSummary(id, attempt=1) {
     }
 }
 
-for(let doc of docs) {
+// Complete Dataset
+/* for(let doc of docs) {
     const id = parseInt(doc.substring(0, doc.indexOf(".")), 10)
     console.clear()
     console.log(`Generating Summary for ${doc} ...`)
     const summary = await generateSummary(id)
 
     if (summary) {
-        await fs.writeFile(`output/summary/${id}.txt`, summary);
+        await fs.writeFile(`output/test_summary/${id}.txt`, summary);
+    } else {
+        console.error(`[!] Summary for ID ${id} is empty. File not written.`);
+    }
+} */
+
+// Test Dataset
+let ctr = 1;
+for(let row of dataset) {
+    console.clear()
+    console.log(`Generating Summary for ${ctr} ...`)
+    const summary = await generateSummary({ row })
+
+    if (summary) {
+        await fs.writeFile(`output/eval_summary/${ctr++}.txt`, summary);
     } else {
         console.error(`[!] Summary for ID ${id} is empty. File not written.`);
     }
